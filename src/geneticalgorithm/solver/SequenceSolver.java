@@ -1,86 +1,106 @@
-/*
- * Copyright 2018 Pierre REN.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package geneticalgorithm.solver;
 
-import geneticalgorithm.chromosome.SequenceChromosome;
-import geneticalgorithm.population.TemplateSequencePopulation;
-import geneticalgorithm.tool.ScalingFunction;
+import basics.codefactory.CodeFactory;
+import basics.codefactory.SequenceCodeFactory;
+import basics.mutationbehaviors.MutationBehavior;
+import basics.mutationbehaviors.TransposeMutation;
+import basics.objectivefunctions.ObjectiveFunction;
+import geneticalgorithm.chromosomefactory.ChromosomeFactory;
+import geneticalgorithm.chromosomefactory.ChromosomeFactoryUsingCodeFactory;
+import geneticalgorithm.crossoverbehaviors.CrossoverBehavior;
+import geneticalgorithm.crossoverbehaviors.PartiallyMappedCrossover;
+import geneticalgorithm.population.CommonPopulation;
+import geneticalgorithm.processcontroller.GAProcessController;
+import geneticalgorithm.scalingfunctions.LinearScaling;
+import geneticalgorithm.scalingfunctions.ScalingFunction;
 
-/**
- *
- * @author Pierre REN
- */
-public class SequenceSolver extends TemplateSequencePopulation {
+public class SequenceSolver {
 
-    static final int NP = 10;
-    static final int maxIteration = 20;
-    static final double Pc = 0.8;
-    static final double Pm = 0.1;
+    private int maxIteration;
+    private int populationSize;
+    private int geneticPopulationSize;
+    private int codeLength;
 
-    static final int geneLength = 10;
+    private MutationBehavior mutator;
+    private CrossoverBehavior crossover;
+    private ScalingFunction scalingFunction;
+    private ObjectiveFunction objectiveFunction;
 
-    public SequenceSolver() {
-        super(NP);
-        for (int i = 0; i < NP; i++) {
-            population.add(new SequenceChromosome(geneLength));
+    private CommonPopulation population;
+
+    public void initialize(int maxIteration,
+                           int populationSize,
+                           int geneticPopulationSize,
+                           int codeLength,
+                           MutationBehavior mutator,
+                           CrossoverBehavior crossover,
+                           ScalingFunction scalingFunction,
+                           ObjectiveFunction objectiveFunction
+                           ){
+        this.maxIteration = maxIteration;
+        this.populationSize = populationSize;
+        this.geneticPopulationSize = geneticPopulationSize;
+        this.codeLength = codeLength;
+        this.mutator = mutator;
+        this.crossover = crossover;
+        this.scalingFunction = scalingFunction;
+        this.objectiveFunction = objectiveFunction;
+
+        GAProcessController controller = new GAProcessController(
+                this.maxIteration,
+                this.populationSize,
+                this.geneticPopulationSize);
+        CodeFactory codeFactory = new SequenceCodeFactory(this.codeLength,
+                this.mutator,
+                this.objectiveFunction);
+        ChromosomeFactory chromosomeFactory =
+                new ChromosomeFactoryUsingCodeFactory(codeFactory);
+
+        population = new CommonPopulation(controller,
+                chromosomeFactory,
+                this.crossover,
+                this.scalingFunction);
+        population.initialize();
+    }
+
+    public void run(){
+        try {
+            population.evolve();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
         }
-        setProblemNature();
-        calculateAndScaleFitness();
-        updateBestIndividualEver();
-        for (int i = 0; i < maxIteration; i++) {
-            evolve();
+    }
+
+    public void showResult(){
+        System.out.println(population.getOptimals());
+    }
+
+    public static void main(String[] args) {
+        SequenceSolver sequenceSolver = new SequenceSolver();
+        sequenceSolver.initialize(50,
+                10,
+                10,
+                4,
+                new TransposeMutation(),
+                new PartiallyMappedCrossover(),
+                new LinearScaling(),
+                new ScheduleEvaluator());
+
+        sequenceSolver.run();
+        sequenceSolver.showResult();
+    }
+}
+
+class ScheduleEvaluator implements ObjectiveFunction {
+
+    @Override
+    public double evaluate(int[] code) {
+        double value = 0;
+        int[] processingTime = {8, 18, 5, 15};
+        int n = code.length;
+        for (int i = 0; i < code.length; i++) {
+            value += processingTime[code[i] - 1] * n--;
         }
+        return value;
     }
-
-    @Override
-    public void setProblemNature() {
-        searchForMax();
-//        searchForMin();
-    }
-
-    @Override
-    public void scaleFitness() {
-        scaledFitnessList = ScalingFunction.linear(fitnessList, 1, -minFitness());
-//        scaledFitnessList=ScalingFunction.linear(fitnessList, -1, maxFitness());
-    }
-
-    @Override
-    public void scaleFitnessOfGeneticPopulation() {
-        scaledFitnessListOfGeneticPopulation = ScalingFunction.linear(fitnessListOfGeneticPopulation, 1, -minFitness());
-//        scaledFitnessListOfGeneticPopulation=ScalingFunction.linear(fitnessListOfGeneticPopulation, -1, maxFitness());
-    }
-
-    @Override
-    public void getGeneticPopulation() {
-        getGeneticPopulationWithProportionalSelection();
-    }
-
-    @Override
-    public void getNextGeneration() {
-        getNextGenerationWithProportionalSelection();
-    }
-
-    @Override
-    public void executeGeneticOperations() {
-        cycleCrossover(Pc);
-        transpositionMutation(Pm);
-    }
-
-    public double bestFitnessEver() {
-        return bestFitnessEver;
-    }
-
 }

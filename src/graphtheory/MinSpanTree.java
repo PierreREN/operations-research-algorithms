@@ -15,18 +15,14 @@
  */
 package graphtheory;
 
-import com.google.common.graph.EndpointPair;
-import com.google.common.graph.GraphBuilder;
-import com.google.common.graph.MutableGraph;
-import com.google.common.graph.MutableValueGraph;
-import com.google.common.graph.ValueGraphBuilder;
+import com.google.common.graph.*;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
 /**
- *
  * @author Pierre REN
  */
 public class MinSpanTree {

@@ -18,23 +18,24 @@ package antcolonyalgorithm;
 import com.google.common.graph.EndpointPair;
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraph;
+
 import java.util.Set;
 
 /**
- *
  * @author Pierre REN
  */
 public class Environment<Node> {
 
     private ValueGraph<Node, Double> distanceMap;
     private MutableValueGraph<Node, Double> pheromoneMap;
-
-    private double initialPheromone;
     private double volatilizationRate = 0.1;
 
-    public Environment(ValueGraph<Node, Double> distanceMap, MutableValueGraph<Node, Double> pheromoneMap) {
+    public Environment(ValueGraph<Node, Double> distanceMap, MutableValueGraph<Node, Double> pheromoneMap, double initialPheromone) {
         this.distanceMap = distanceMap;
         this.pheromoneMap = pheromoneMap;
+        for (EndpointPair<Node> edge : pheromoneMap.edges()) {
+            pheromoneMap.putEdgeValue(edge.nodeU(), edge.nodeV(), initialPheromone);
+        }
     }
 
     public Set nodes() {

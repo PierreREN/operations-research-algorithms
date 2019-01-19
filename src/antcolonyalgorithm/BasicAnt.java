@@ -15,13 +15,13 @@
  */
 package antcolonyalgorithm;
 
+import basics.tools.RouletteWheel;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
-import tool.RouletteWheel;
 
 /**
- *
  * @author Pierre REN
  */
 public class BasicAnt<Node> {

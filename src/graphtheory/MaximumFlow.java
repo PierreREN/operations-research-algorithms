@@ -17,13 +17,13 @@ package graphtheory;
 
 import com.google.common.graph.MutableValueGraph;
 import com.google.common.graph.ValueGraphBuilder;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
 /**
- *
  * @author Pierre REN
  */
 public class MaximumFlow {
