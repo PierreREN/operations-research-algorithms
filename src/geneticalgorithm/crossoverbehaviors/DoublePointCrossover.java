@@ -1,7 +1,7 @@
 package geneticalgorithm.crossoverbehaviors;
 
-import geneticalgorithm.chromosome.Chromosome;
 import basics.tools.Random2Cutting;
+import geneticalgorithm.chromosome.Chromosome;
 
 public class DoublePointCrossover implements CrossoverBehavior {
     @Override

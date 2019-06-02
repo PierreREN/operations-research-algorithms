@@ -14,7 +14,7 @@ public class IntegerCodeFactory implements CodeFactory {
 
     public IntegerCodeFactory(Ranges ranges,
                               MutationBehavior mutator,
-                              ObjectiveFunction objectiveFunction){
+                              ObjectiveFunction objectiveFunction) {
         this.ranges = ranges;
         this.mutator = mutator;
         this.objectiveFunction = objectiveFunction;

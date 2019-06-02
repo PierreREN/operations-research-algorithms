@@ -13,7 +13,7 @@ public class SequenceCodeFactory implements CodeFactory {
 
     public SequenceCodeFactory(int codeLength,
                                MutationBehavior mutator,
-                               ObjectiveFunction objectiveFunction){
+                               ObjectiveFunction objectiveFunction) {
         this.codeLength = codeLength;
         this.mutator = mutator;
         this.objectiveFunction = objectiveFunction;

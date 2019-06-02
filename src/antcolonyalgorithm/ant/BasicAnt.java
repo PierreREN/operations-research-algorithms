@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package antcolonyalgorithm;
+package antcolonyalgorithm.ant;
 
-import basics.tools.RouletteWheel;
+import antcolonyalgorithm.Environment;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -24,7 +24,7 @@ import java.util.Random;
 /**
  * @author Pierre REN
  */
-public class BasicAnt<Node> {
+public abstract class BasicAnt<Node> implements Ant<Node> {
 
     protected final Environment<Node> environment;
     protected Node currentNode;
@@ -33,10 +33,11 @@ public class BasicAnt<Node> {
 
     public BasicAnt(Environment environment) {
         this.environment = environment;
-        visitedNodes = new LinkedList();
     }
 
+    @Override
     public void initialize() {
+        visitedNodes = new LinkedList();
         Random r = new Random();
         int index = r.nextInt(environment.nodes().size()) + 1;
         Iterator itr = environment.nodes().iterator();
@@ -47,13 +48,18 @@ public class BasicAnt<Node> {
         visitedNodes.add(currentNode);
     }
 
-    private LinkedList<Node> getReachableNodes() {
+    @Override
+    public Node getCurrentNode() {
+        return currentNode;
+    }
+
+    protected LinkedList<Node> getReachableNodes() {
         reachableNodes = new LinkedList(environment.adjacentNodes(currentNode));
         reachableNodes.removeAll(visitedNodes);
         return reachableNodes;
     }
 
-    private double[] getDistances() {
+    protected double[] getDistances() {
         double[] distances = new double[reachableNodes.size()];
         for (int i = 0; i < distances.length; i++) {
             distances[i] = environment.getDistance(currentNode, reachableNodes.get(i));
@@ -61,7 +67,7 @@ public class BasicAnt<Node> {
         return distances;
     }
 
-    private double[] getHeuristics() {
+    protected double[] getHeuristics() {
         double[] distances = getDistances();
         double[] heuristics = new double[distances.length];
         for (int i = 0; i < heuristics.length; i++) {
@@ -70,7 +76,7 @@ public class BasicAnt<Node> {
         return heuristics;
     }
 
-    private double[] getPheromones() {
+    protected double[] getPheromones() {
         double[] pheromones = new double[reachableNodes.size()];
         for (int i = 0; i < pheromones.length; i++) {
             pheromones[i] = environment.getPheromone(currentNode, reachableNodes.get(i));
@@ -78,22 +84,19 @@ public class BasicAnt<Node> {
         return pheromones;
     }
 
-    public boolean moveToNextNode(double alpha, double beta) {
-        if (getReachableNodes().isEmpty()) {
-            return false;
-        } else {
-            double[] transitionPower = new double[reachableNodes.size()];
-            double[] pheromones = getPheromones();
-            double[] heuristics = getHeuristics();
-            for (int i = 0; i < transitionPower.length; i++) {
-                transitionPower[i] = Math.pow(pheromones[i], alpha) * Math.pow(heuristics[i], beta);
-            }
-            RouletteWheel rouletteWheel = new RouletteWheel(transitionPower);
-            int indexOfNextNode = rouletteWheel.randomIndex();
-            currentNode = reachableNodes.get(indexOfNextNode);
-            visitedNodes.add(currentNode);
-            return true;
-        }
+    public boolean isCycleFormed() {
+        return visitedNodes.getFirst().equals(visitedNodes.getLast());
+    }
+
+    public boolean allNodesVisited() {
+        return environment.nodes().containsAll(visitedNodes) && visitedNodes.containsAll(environment.nodes());
+    }
+
+    public double getCyclePathLength() {
+        if (isCycleFormed()) {
+            return getVisitedPathLength();
+        } else
+            return Double.POSITIVE_INFINITY;
     }
 
     public LinkedList<Node> getVisitedPath() {

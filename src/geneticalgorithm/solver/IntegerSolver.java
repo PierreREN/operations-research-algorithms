@@ -29,6 +29,24 @@ public class IntegerSolver {
 
     private CommonPopulation population;
 
+    public static void main(String[] args) {
+
+        Ranges ranges = new Ranges(4, 1, 4);
+
+        IntegerSolver integerSolver = new IntegerSolver();
+        integerSolver.initialize(50,
+                10,
+                10,
+                ranges,
+                new TransposeMutation(),
+                new DoublePointCrossover(),
+                new LinearScaling(),
+                new IntegerEvaluator());
+
+        integerSolver.run();
+        integerSolver.showResult();
+    }
+
     public void initialize(int maxIteration,
                            int populationSize,
                            int geneticPopulationSize,
@@ -37,7 +55,7 @@ public class IntegerSolver {
                            CrossoverBehavior crossover,
                            ScalingFunction scalingFunction,
                            ObjectiveFunction objectiveFunction
-    ){
+    ) {
         this.maxIteration = maxIteration;
         this.populationSize = populationSize;
         this.geneticPopulationSize = geneticPopulationSize;
@@ -64,7 +82,7 @@ public class IntegerSolver {
         population.initialize();
     }
 
-    public void run(){
+    public void run() {
         try {
             population.evolve();
         } catch (CloneNotSupportedException e) {
@@ -72,26 +90,8 @@ public class IntegerSolver {
         }
     }
 
-    public void showResult(){
-        System.out.println(population.getOptimals());
-    }
-
-    public static void main(String[] args) {
-
-        Ranges ranges  = new Ranges(4, 1, 4);
-
-        IntegerSolver integerSolver = new IntegerSolver();
-        integerSolver.initialize(50,
-                10,
-                10,
-                ranges,
-                new TransposeMutation(),
-                new DoublePointCrossover(),
-                new LinearScaling(),
-                new IntegerEvaluator());
-
-        integerSolver.run();
-        integerSolver.showResult();
+    public void showResult() {
+        System.out.println(population.getOptimums());
     }
 }
 

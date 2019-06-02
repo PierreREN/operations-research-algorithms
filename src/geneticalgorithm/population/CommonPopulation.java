@@ -1,12 +1,12 @@
 package geneticalgorithm.population;
 
+import basics.tools.NonredundantLinkedList;
+import basics.tools.RouletteWheel;
 import geneticalgorithm.chromosome.Chromosome;
 import geneticalgorithm.chromosomefactory.ChromosomeFactory;
 import geneticalgorithm.crossoverbehaviors.CrossoverBehavior;
 import geneticalgorithm.processcontroller.GAProcessController;
 import geneticalgorithm.scalingfunctions.ScalingFunction;
-import basics.tools.NonredundantLinkedList;
-import basics.tools.RouletteWheel;
 
 import java.util.ArrayList;
 
@@ -19,7 +19,7 @@ public class CommonPopulation {
     private CrossoverBehavior crossoverBehavior;
     private ScalingFunction scalingFunction;
 
-    private NonredundantLinkedList<Chromosome> optimals;
+    private NonredundantLinkedList<Chromosome> optimums;
 
     public CommonPopulation(GAProcessController controller,
                             ChromosomeFactory chromosomeFactory,
@@ -36,7 +36,7 @@ public class CommonPopulation {
         for (int i = 0; i < controller.getPopulationSize(); i++) {
             population.add(chromosomeFactory.generateChromosome());
         }
-        optimals = new NonredundantLinkedList<>();
+        optimums = new NonredundantLinkedList<>();
     }
 
     /**
@@ -61,10 +61,10 @@ public class CommonPopulation {
         for (int i = 0; i < population.size(); i++) {
             objectiveFunctionValues[i] = population.get(i).objectiveFunctionValue();
             if (controller.equalToCurrentOptimal(objectiveFunctionValues[i])) {
-                optimals.add((Chromosome) population.get(i).clone());
+                optimums.add((Chromosome) population.get(i).clone());
             } else if (controller.betterThanCurrentOptimal(objectiveFunctionValues[i])) {
-                optimals.clear();
-                optimals.add((Chromosome) population.get(i).clone());
+                optimums.clear();
+                optimums.add((Chromosome) population.get(i).clone());
             }
         }
         double[] fitnessList = scalingFunction.scale(objectiveFunctionValues);
@@ -91,22 +91,22 @@ public class CommonPopulation {
         for (controller.initialize(); !controller.reachStoppingCriterion(); controller.update()) {
             try {
                 singleGenerationEvolution();
-                System.out.println(population+"\n");
+//                System.out.println(population + "\n");
             } catch (CloneNotSupportedException e) {
                 e.printStackTrace();
             }
         }
         for (int i = 0; i < population.size(); i++) {
             if (controller.equalToCurrentOptimal(population.get(i).objectiveFunctionValue())) {
-                optimals.add((Chromosome) population.get(i).clone());
+                optimums.add((Chromosome) population.get(i).clone());
             } else if (controller.betterThanCurrentOptimal(population.get(i).objectiveFunctionValue())) {
-                optimals.clear();
-                optimals.add((Chromosome) population.get(i).clone());
+                optimums.clear();
+                optimums.add((Chromosome) population.get(i).clone());
             }
         }
     }
 
-    public NonredundantLinkedList<Chromosome> getOptimals() {
-        return optimals;
+    public NonredundantLinkedList<Chromosome> getOptimums() {
+        return optimums;
     }
 }

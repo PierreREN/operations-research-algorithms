@@ -28,14 +28,13 @@ public class Environment<Node> {
 
     private ValueGraph<Node, Double> distanceMap;
     private MutableValueGraph<Node, Double> pheromoneMap;
-    private double volatilizationRate = 0.1;
+    private double initialPheromone;
+    private double volatility = 0.1;
 
     public Environment(ValueGraph<Node, Double> distanceMap, MutableValueGraph<Node, Double> pheromoneMap, double initialPheromone) {
         this.distanceMap = distanceMap;
         this.pheromoneMap = pheromoneMap;
-        for (EndpointPair<Node> edge : pheromoneMap.edges()) {
-            pheromoneMap.putEdgeValue(edge.nodeU(), edge.nodeV(), initialPheromone);
-        }
+        this.initialPheromone = initialPheromone;
     }
 
     public Set nodes() {
@@ -54,20 +53,36 @@ public class Environment<Node> {
         return pheromoneMap.edgeValue(nodeU, nodeV).get();
     }
 
+    public double getInitialPheromone() {
+        return initialPheromone;
+    }
+
+    public double getVolatility() {
+        return volatility;
+    }
+
     public void volatilizePheromones() {
         Set<EndpointPair<Node>> edges = pheromoneMap.edges();
         for (EndpointPair<Node> edge : edges) {
             Node nodeU = edge.nodeU();
             Node nodeV = edge.nodeV();
-            double currentPheromone = pheromoneMap.edgeValue(nodeU, nodeV).get();
-            double legacyPheromone = (1 - volatilizationRate) * currentPheromone;
-            pheromoneMap.putEdgeValue(nodeU, nodeV, legacyPheromone);
+            volatilizePheromone(nodeU, nodeV, volatility);
         }
+    }
+
+    public void volatilizePheromone(Node nodeU, Node nodeV, double volatility) {
+        double currentPheromone = pheromoneMap.edgeValue(nodeU, nodeV).get();
+        double legacyPheromone = (1 - volatility) * currentPheromone;
+        pheromoneMap.putEdgeValue(nodeU, nodeV, legacyPheromone);
     }
 
     public void leavePheromone(Node nodeU, Node nodeV, double deltaPheromone) {
         double legacyPheromone = pheromoneMap.edgeValue(nodeU, nodeV).get();
         pheromoneMap.putEdgeValue(nodeU, nodeV, legacyPheromone + deltaPheromone);
+    }
+
+    public void showPheromones() {
+        System.out.println(pheromoneMap);
     }
 
 }

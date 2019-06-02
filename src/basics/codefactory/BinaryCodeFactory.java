@@ -13,7 +13,7 @@ public class BinaryCodeFactory implements CodeFactory {
 
     public BinaryCodeFactory(int codeLength,
                              MutationBehavior mutator,
-                             ObjectiveFunction objectiveFunction){
+                             ObjectiveFunction objectiveFunction) {
         this.codeLength = codeLength;
         this.mutator = mutator;
         this.objectiveFunction = objectiveFunction;

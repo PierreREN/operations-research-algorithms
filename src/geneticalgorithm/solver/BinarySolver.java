@@ -28,6 +28,21 @@ public class BinarySolver {
 
     private CommonPopulation population;
 
+    public static void main(String[] args) {
+        BinarySolver binarySolver = new BinarySolver();
+        binarySolver.initialize(50,
+                10,
+                10,
+                4,
+                new TransposeMutation(),
+                new DoublePointCrossover(),
+                new LinearScaling(),
+                new BinaryEvaluator());
+
+        binarySolver.run();
+        binarySolver.showResult();
+    }
+
     public void initialize(int maxIteration,
                            int populationSize,
                            int geneticPopulationSize,
@@ -36,7 +51,7 @@ public class BinarySolver {
                            CrossoverBehavior crossover,
                            ScalingFunction scalingFunction,
                            ObjectiveFunction objectiveFunction
-                           ){
+    ) {
         this.maxIteration = maxIteration;
         this.populationSize = populationSize;
         this.geneticPopulationSize = geneticPopulationSize;
@@ -63,7 +78,7 @@ public class BinarySolver {
         population.initialize();
     }
 
-    public void run(){
+    public void run() {
         try {
             population.evolve();
         } catch (CloneNotSupportedException e) {
@@ -71,23 +86,8 @@ public class BinarySolver {
         }
     }
 
-    public void showResult(){
-        System.out.println(population.getOptimals());
-    }
-
-    public static void main(String[] args) {
-        BinarySolver binarySolver = new BinarySolver();
-        binarySolver.initialize(50,
-                10,
-                10,
-                4,
-                new TransposeMutation(),
-                new DoublePointCrossover(),
-                new LinearScaling(),
-                new BinaryEvaluator());
-
-        binarySolver.run();
-        binarySolver.showResult();
+    public void showResult() {
+        System.out.println(population.getOptimums());
     }
 }
 
