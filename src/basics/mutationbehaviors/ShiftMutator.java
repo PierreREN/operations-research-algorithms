@@ -13,30 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package basics.tools;
+
+package basics.mutationbehaviors;
 
 import java.util.Random;
 
-/**
- * @author Pierre REN
- */
-public class Random2Cutting {
+public class ShiftMutator implements MutationBehavior {
 
-    public int cutting1;
-    public int cutting2;
+    private double mutationRate;
 
-    public Random2Cutting(int L) {
+    public ShiftMutator(double mutationRate) {
+        this.mutationRate = mutationRate;
+    }
+
+    @Override
+    public void mutate(int[] array) {
         Random r = new Random();
-        cutting1 = r.nextInt(L + 1);
-        cutting2 = cutting1;
-        //cut2>cut1且cut1、cut2不同时为0和L
-        while (cutting1 == cutting2 || cutting2 - cutting1 == L) {
-            cutting2 = r.nextInt(L + 1);
-            if (cutting1 > cutting2) {
-                int c0 = cutting1;
-                cutting1 = cutting2;
-                cutting2 = c0;
+        if (r.nextDouble() < mutationRate) {
+            int index = 1 + r.nextInt(array.length - 1);
+            int code_0 = array[index];
+            for (int i = index; i > 0; i--) {
+                array[i] = array[i - 1];
             }
+            array[0] = code_0;
         }
     }
 }

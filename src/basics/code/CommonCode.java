@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Pierre REN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package basics.code;
 
 import basics.mutationbehaviors.MutationBehavior;
@@ -61,7 +77,6 @@ public abstract class CommonCode implements Code {
                 }
                 if (cc.mutator != mutator ||
                         cc.objectiveFunction != objectiveFunction) {
-                    System.out.println("MUTATOR OR OBJECTIVEFUNCTION");
                     return false;
                 }
                 return true;
@@ -71,14 +86,17 @@ public abstract class CommonCode implements Code {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        CommonCode bc = (CommonCode) super.clone();
-        bc.array = new int[array.length];
-        for (int i = 0; i < array.length; i++) {
-            bc.array[i] = array[i];
+    public Object clone() {
+        CommonCode bc = null;
+        try {
+            bc = (CommonCode) super.clone();
+            bc.array = new int[array.length];
+            System.arraycopy(array, 0, bc.array, 0, array.length);
+            bc.mutator = mutator;
+            bc.objectiveFunction = objectiveFunction;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
         }
-        bc.mutator = mutator;
-        bc.objectiveFunction = objectiveFunction;
         return bc;
     }
 

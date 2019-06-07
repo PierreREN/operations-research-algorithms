@@ -1,80 +1,61 @@
+/*
+ * Copyright 2019 Pierre REN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package geneticalgorithm.solver;
 
 import basics.codefactory.BinaryCodeFactory;
 import basics.codefactory.CodeFactory;
-import basics.mutationbehaviors.MutationBehavior;
-import basics.mutationbehaviors.TransposeMutation;
-import basics.objectivefunctions.ObjectiveFunction;
+import basics.mutationbehaviors.TransposeMutator;
+import basics.objectivefunctions.BinaryEvaluator;
 import geneticalgorithm.chromosomefactory.ChromosomeFactory;
 import geneticalgorithm.chromosomefactory.ChromosomeFactoryUsingCodeFactory;
-import geneticalgorithm.crossoverbehaviors.CrossoverBehavior;
 import geneticalgorithm.crossoverbehaviors.DoublePointCrossover;
 import geneticalgorithm.population.CommonPopulation;
-import geneticalgorithm.processcontroller.GAProcessController;
+import geneticalgorithm.processcontroller.GAController;
 import geneticalgorithm.scalingfunctions.LinearScaling;
-import geneticalgorithm.scalingfunctions.ScalingFunction;
 
 public class BinarySolver {
-
-    private int maxIteration;
-    private int populationSize;
-    private int geneticPopulationSize;
-    private int codeLength;
-
-    private MutationBehavior mutator;
-    private CrossoverBehavior crossover;
-    private ScalingFunction scalingFunction;
-    private ObjectiveFunction objectiveFunction;
 
     private CommonPopulation population;
 
     public static void main(String[] args) {
-        BinarySolver binarySolver = new BinarySolver();
-        binarySolver.initialize(50,
-                10,
-                10,
-                4,
-                new TransposeMutation(),
-                new DoublePointCrossover(),
-                new LinearScaling(),
+
+        GAController controller = new GAController(new DoublePointCrossover(),
+                new TransposeMutator(0.1),
+                new LinearScaling(-1, 1, 0, 0),
                 new BinaryEvaluator());
+        controller.setIntegerParameters("maxIteration", 100);
+        controller.setIntegerParameters("populationSize", 20);
+        controller.setIntegerParameters("geneticPopulationSize", 20);
+
+        BinarySolver binarySolver = new BinarySolver();
+        binarySolver.initialize(controller, 4);
 
         binarySolver.run();
         binarySolver.showResult();
     }
 
-    public void initialize(int maxIteration,
-                           int populationSize,
-                           int geneticPopulationSize,
-                           int codeLength,
-                           MutationBehavior mutator,
-                           CrossoverBehavior crossover,
-                           ScalingFunction scalingFunction,
-                           ObjectiveFunction objectiveFunction
-    ) {
-        this.maxIteration = maxIteration;
-        this.populationSize = populationSize;
-        this.geneticPopulationSize = geneticPopulationSize;
-        this.codeLength = codeLength;
-        this.mutator = mutator;
-        this.crossover = crossover;
-        this.scalingFunction = scalingFunction;
-        this.objectiveFunction = objectiveFunction;
-
-        GAProcessController controller = new GAProcessController(
-                this.maxIteration,
-                this.populationSize,
-                this.geneticPopulationSize);
-        CodeFactory codeFactory = new BinaryCodeFactory(this.codeLength,
-                this.mutator,
-                this.objectiveFunction);
+    public void initialize(GAController controller, int codeLength) {
+        CodeFactory codeFactory = new BinaryCodeFactory(codeLength,
+                controller.getMutator(),
+                controller.getObjectiveFunction());
         ChromosomeFactory chromosomeFactory =
                 new ChromosomeFactoryUsingCodeFactory(codeFactory);
 
-        population = new CommonPopulation(controller,
-                chromosomeFactory,
-                this.crossover,
-                this.scalingFunction);
+        population = new CommonPopulation(controller, chromosomeFactory);
         population.initialize();
     }
 
@@ -88,19 +69,5 @@ public class BinarySolver {
 
     public void showResult() {
         System.out.println(population.getOptimums());
-    }
-}
-
-class BinaryEvaluator implements ObjectiveFunction {
-
-    @Override
-    public double evaluate(int[] code) {
-        double value = 0;
-        int[] processingTime = {8, 18, 5, 15};
-        int n = code.length;
-        for (int i = 0; i < code.length; i++) {
-            value += processingTime[i] * code[i];
-        }
-        return value;
     }
 }

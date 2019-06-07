@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 Pierre REN.
+ * Copyright 2019 Pierre REN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,7 @@ public class SequenceCode extends CommonCode implements Code {
     private void random() {
         LinkedList<Integer> list = new LinkedList<>();
         for (int i = 0; i < array.length; i++) {
-            list.add(i + 1);
+            list.add(i);
         }
         Random r = new Random();
         for (int i = 0; i < array.length; i++) {

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 Pierre REN.
+ * Copyright 2019 Pierre REN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,17 +38,13 @@ public class StateUsingCodeFactory implements State {
     }
 
     public State getNextState(double T) {
-        try {
-            Code nextCode = (Code) code.clone();
-            nextCode.mutate();
-            double nextEnergy = nextCode.objectiveFunctionValue();
-            double delta = nextEnergy - this.energy;
-            if (delta <= 0 || (Math.random() < Math.exp(-delta / T))) {
-                this.code = nextCode;
-                this.energy = nextEnergy;
-            }
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+        Code nextCode = (Code) code.clone();
+        nextCode.mutate();
+        double nextEnergy = nextCode.objectiveFunctionValue();
+        double delta = nextEnergy - this.energy;
+        if (delta <= 0 || (Math.random() < Math.exp(-delta / T))) {
+            this.code = nextCode;
+            this.energy = nextEnergy;
         }
         return this;
     }
@@ -63,8 +59,8 @@ public class StateUsingCodeFactory implements State {
                 return true;
             } else if (obj instanceof StateUsingCodeFactory) {
                 StateUsingCodeFactory s = (StateUsingCodeFactory) obj;
-                if (s.code.equals(code) && s.getEnergy() == energy &&
-                        s.codeFactory.equals(codeFactory)) {
+                if (s.code.equals(code) && s.getEnergy() == energy
+                        && s.codeFactory.equals(codeFactory)) {
                     return true;
                 }
             }
@@ -73,11 +69,10 @@ public class StateUsingCodeFactory implements State {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        StateUsingCodeFactory s = (StateUsingCodeFactory) super.clone();
+    public Object clone() {
+        StateUsingCodeFactory s = new StateUsingCodeFactory(codeFactory);
         s.code = (Code) this.code.clone();
         s.energy = this.energy;
-        s.codeFactory = (CodeFactory) this.codeFactory.clone();
         return s;
     }
 

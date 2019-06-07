@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Pierre REN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package geneticalgorithm.crossoverbehaviors;
 
 import geneticalgorithm.chromosome.Chromosome;
@@ -17,15 +33,15 @@ public class CycleCrossover implements CrossoverBehavior {
             ArrayList<Integer> gene1 = new ArrayList<>(length);
             ArrayList<Integer> gene2 = new ArrayList<>(length);
             for (int i = 0; i < length; i++) {
-                newPiece1.add(i, 0);
-                newPiece2.add(i, 0);
+                newPiece1.add(i, -1);
+                newPiece2.add(i, -1);
                 gene1.add(i, chromosome1.getGene()[i]);
                 gene2.add(i, chromosome2.getGene()[i]);
             }
             int i = 0;
             boolean forward = true;
             while (i >= 0) {
-                int j = 0;
+                int j;
                 if (forward) {
                     newPiece1.set(i, chromosome1.getGene()[i]);
                     newPiece2.set(i, chromosome2.getGene()[i]);
@@ -35,7 +51,7 @@ public class CycleCrossover implements CrossoverBehavior {
                         newPiece2.set(j, chromosome2.getGene()[j]);
                         j = gene1.indexOf(chromosome2.getGene()[j]);
                     }
-                    i = newPiece2.indexOf(0);
+                    i = newPiece2.indexOf(-1);
                     forward = false;
                 } else {
                     newPiece1.set(i, chromosome2.getGene()[i]);
@@ -46,7 +62,7 @@ public class CycleCrossover implements CrossoverBehavior {
                         newPiece2.set(j, chromosome1.getGene()[j]);
                         j = gene2.indexOf(chromosome1.getGene()[j]);
                     }
-                    i = newPiece1.indexOf(0);
+                    i = newPiece1.indexOf(-1);
                     forward = true;
                 }
             }

@@ -1,39 +1,48 @@
+/*
+ * Copyright 2019 Pierre REN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package geneticalgorithm.population;
 
 import basics.tools.NonredundantLinkedList;
 import basics.tools.RouletteWheel;
 import geneticalgorithm.chromosome.Chromosome;
 import geneticalgorithm.chromosomefactory.ChromosomeFactory;
-import geneticalgorithm.crossoverbehaviors.CrossoverBehavior;
-import geneticalgorithm.processcontroller.GAProcessController;
-import geneticalgorithm.scalingfunctions.ScalingFunction;
+import geneticalgorithm.processcontroller.GAController;
 
 import java.util.ArrayList;
 
 public class CommonPopulation {
 
-    private GAProcessController controller;
+    private GAController controller;
 
     private ArrayList<Chromosome> population;
     private ChromosomeFactory chromosomeFactory;
-    private CrossoverBehavior crossoverBehavior;
-    private ScalingFunction scalingFunction;
 
     private NonredundantLinkedList<Chromosome> optimums;
 
-    public CommonPopulation(GAProcessController controller,
-                            ChromosomeFactory chromosomeFactory,
-                            CrossoverBehavior crossoverBehavior,
-                            ScalingFunction scalingFunction) {
+    public CommonPopulation(GAController controller,
+                            ChromosomeFactory chromosomeFactory) {
         this.controller = controller;
         this.chromosomeFactory = chromosomeFactory;
-        this.crossoverBehavior = crossoverBehavior;
-        this.scalingFunction = scalingFunction;
     }
 
     public void initialize() {
-        population = new ArrayList<>(controller.getPopulationSize());
-        for (int i = 0; i < controller.getPopulationSize(); i++) {
+        int geneticPopulationSize = controller.getIntegerParameter("geneticPopulationSize");
+        population = new ArrayList<>(geneticPopulationSize);
+        for (int i = 0; i < geneticPopulationSize; i++) {
             population.add(chromosomeFactory.generateChromosome());
         }
         optimums = new NonredundantLinkedList<>();
@@ -59,17 +68,19 @@ public class CommonPopulation {
     private void singleGenerationEvolution() throws CloneNotSupportedException {
         double[] objectiveFunctionValues = new double[population.size()];
         for (int i = 0; i < population.size(); i++) {
-            objectiveFunctionValues[i] = population.get(i).objectiveFunctionValue();
-            if (controller.equalToCurrentOptimal(objectiveFunctionValues[i])) {
+            double value = population.get(i).objectiveFunctionValue();
+            objectiveFunctionValues[i] = value;
+            if (controller.equalToCurrentOptimum(value)) {
                 optimums.add((Chromosome) population.get(i).clone());
-            } else if (controller.betterThanCurrentOptimal(objectiveFunctionValues[i])) {
+            } else if (controller.betterThanCurrentOptimum(value)) {
                 optimums.clear();
                 optimums.add((Chromosome) population.get(i).clone());
+                controller.setOptimum(value);
             }
         }
-        double[] fitnessList = scalingFunction.scale(objectiveFunctionValues);
+        double[] fitnessList = controller.scale(objectiveFunctionValues);
 
-        int geneticPopulationSize = controller.getGeneticPopulationSize();
+        int geneticPopulationSize = controller.getIntegerParameter("geneticPopulationSize");
         int[] indexes = proportionalSelection(fitnessList, geneticPopulationSize);
         ArrayList<Chromosome> geneticPopulation = new ArrayList<>(geneticPopulationSize);
         for (int i = 0; i < geneticPopulationSize; i++) {
@@ -79,7 +90,7 @@ public class CommonPopulation {
         for (int i = 0; i < geneticPopulationSize; i = i + 2) {
             Chromosome chromosome1 = geneticPopulation.get(i);
             Chromosome chromosome2 = geneticPopulation.get(i + 1);
-            crossoverBehavior.crossover(chromosome1, chromosome2);
+            controller.crossover(chromosome1, chromosome2);
         }
         for (Chromosome chromosome : geneticPopulation) {
             chromosome.mutate();
@@ -89,20 +100,19 @@ public class CommonPopulation {
 
     public void evolve() throws CloneNotSupportedException {
         for (controller.initialize(); !controller.reachStoppingCriterion(); controller.update()) {
-            try {
-                singleGenerationEvolution();
+            singleGenerationEvolution();
 //                System.out.println(population + "\n");
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
+            for (Chromosome chromosome : population) {
+                double value = chromosome.objectiveFunctionValue();
+                if (controller.equalToCurrentOptimum(value)) {
+                    optimums.add((Chromosome) chromosome.clone());
+                } else if (controller.betterThanCurrentOptimum(value)) {
+                    optimums.clear();
+                    optimums.add((Chromosome) chromosome.clone());
+                    controller.setOptimum(value);
+                }
             }
-        }
-        for (int i = 0; i < population.size(); i++) {
-            if (controller.equalToCurrentOptimal(population.get(i).objectiveFunctionValue())) {
-                optimums.add((Chromosome) population.get(i).clone());
-            } else if (controller.betterThanCurrentOptimal(population.get(i).objectiveFunctionValue())) {
-                optimums.clear();
-                optimums.add((Chromosome) population.get(i).clone());
-            }
+//            System.out.println("[ Iteration " + controller.getCurrentIteration() + " ]\t" + getOptimums().toString());
         }
     }
 

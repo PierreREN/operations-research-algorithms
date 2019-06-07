@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 Pierre REN.
+ * Copyright 2019 Pierre REN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,8 @@
 package simulatedannealing.annealingsimulator;
 
 import basics.tools.NonredundantLinkedList;
+import simulatedannealing.processcontroller.TemperatureController;
 import simulatedannealing.state.State;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Pierre REN
@@ -48,29 +46,20 @@ public class AnnealingSimulator {
     }
 
     public void anneal() {
-        NonredundantLinkedList<State> localMinimum = new NonredundantLinkedList<>();
+        int iteration = 0;
         for (tc.initialize(); !tc.reachStoppingCriterion(); tc.update()) {
             double T = tc.getCurrentTemperature();
             for (int k = 0; k < tc.getRepetitionSchedule(); k++) {
                 state = state.getNextState(T);
                 if (state.getEnergy() < currentMinEnergy) {
                     currentMinEnergy = state.getEnergy();
-                    localMinimum.clear();
-                    try {
-                        localMinimum.add((State) state.clone());//需要采用clone方法以保证保存的不是s的引用
-                    } catch (CloneNotSupportedException ex) {
-                        Logger.getLogger(AnnealingSimulator.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    globalMinimum.clear();
+                    globalMinimum.add((State) state.clone());//需要采用clone方法以保证保存的不是s的引用
                 } else if (state.getEnergy() == currentMinEnergy) {
-                    try {
-                        localMinimum.add((State) state.clone());
-                    } catch (CloneNotSupportedException ex) {
-                        Logger.getLogger(AnnealingSimulator.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    globalMinimum.add((State) state.clone());
                 }
             }
         }
-        globalMinimum = localMinimum;
     }
 
     public NonredundantLinkedList<State> getGlobalMinimum() {
