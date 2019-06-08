@@ -10,3 +10,7 @@ Simulated Annealing algorithm for solving TSP or sequencing problem in particula
 Ant-Colony Algorithm, or to be more specific, ant-colony system and ant-cycle model which are two common instances of Ant-Colony Algorithm have been implemented to solve the TSP problem. You may find through the given examples that Ant-Colony Algorithm apparently out-performs the other intelligent optimization algorithms for solving basic TSP.
 
 Several graph algorithms have also been proposed, including max flow, min span tree, and also shortest path.
+
+
+
+Multiple design patterns have been adopted to increase the flexibility, reconfigurability and reusability of the algorithm components and thus to faciliate the utilization of this set of operations research algorithms.
